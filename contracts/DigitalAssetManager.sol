@@ -3,7 +3,7 @@ pragma solidity ^0.8.19;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
 
-contract DigitalAssetRegistry is Ownable {
+contract DigitalAssetManager is Ownable {
     struct Asset {
         string name;
         string description;
@@ -19,11 +19,7 @@ contract DigitalAssetRegistry is Ownable {
     event AssetRegistered(string indexed assetHash, address indexed owner, uint256 timestamp);
     event OwnershipTransferred(string indexed assetHash, address indexed previousOwner, address indexed newOwner, uint256 timestamp);
 
-    /// @notice Registers a new digital asset
-    /// @param _name The name of the asset
-    /// @param _description The description of the asset
-    /// @param _assetHash The cryptographic hash of the asset
-    constructor() Ownable() { 
+    constructor() Ownable() {
         // The Ownable constructor will set the owner to the deployer
     }
 
@@ -43,9 +39,6 @@ contract DigitalAssetRegistry is Ownable {
         emit AssetRegistered(_assetHash, msg.sender, block.timestamp);
     }
 
-    /// @notice Transfers asset ownership to another user
-    /// @param _assetHash The hash of the asset
-    /// @param _newOwner The new owner address
     function transferOwnership(string memory _assetHash, address _newOwner) external {
         require(registeredAssets[_assetHash], "Asset not registered");
         require(assets[_assetHash].currentOwner == msg.sender, "Only current owner can transfer");
@@ -57,9 +50,6 @@ contract DigitalAssetRegistry is Ownable {
         emit OwnershipTransferred(_assetHash, previousOwner, _newOwner, block.timestamp);
     }
 
-    /// @notice Retrieves asset details
-    /// @param _assetHash The hash of the asset
-    /// @return name, description, owner, timestamp, ownership history
     function getAssetDetails(string memory _assetHash) external view returns (
         string memory, string memory, address, uint256, address[] memory
     ) {
@@ -68,9 +58,6 @@ contract DigitalAssetRegistry is Ownable {
         return (asset.name, asset.description, asset.currentOwner, asset.timestamp, asset.ownershipHistory);
     }
 
-    /// @notice Verifies asset integrity using the stored hash
-    /// @param _assetHash The hash of the asset
-    /// @return Whether the asset exists
     function verifyAsset(string memory _assetHash) external view returns (bool) {
         return registeredAssets[_assetHash];
     }

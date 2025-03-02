@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Digital Asset Manager</title>
+    <!-- Import Web3.js library for interacting with Ethereum blockchain -->
+    <script src="https://cdn.jsdelivr.net/npm/web3@1.6.1/dist/web3.min.js"></script>
+</head>
+<body>
+    <h1>Digital Asset Manager</h1>
+
+    <!-- Input field for entering the Asset Hash -->
+    <label for="assetHash">Enter Asset Hash:</label>
+    <input type="text" id="assetHash" placeholder="Enter Asset Hash">
+    
+    <!-- Buttons for getting asset details and verifying asset existence -->
+    <button onclick="getAssetDetails()">Get Asset Details</button>
+    <button onclick="verifyAsset()">Verify Asset</button>
+
+    <h2>Asset Details</h2>
+    <!-- Display the asset details after fetching -->
+    <p><strong>Name:</strong> <span id="assetName">N/A</span></p>
+    <p><strong>Description:</strong> <span id="assetDescription">N/A</span></p>
+    <p><strong>Owner:</strong> <span id="assetOwner">N/A</span></p>
+    <p><strong>Timestamp:</strong> <span id="assetTimestamp">N/A</span></p>
+
+    <h2>Verification Status</h2>
+    <!-- Display the verification result for the asset -->
+    <p><span id="verificationStatus">N/A</span></p>
+
+    <script>
+        // Replace with your actual contract address after deployment
+        const contractAddress = "0x1234567890abcdef1234567890abcdef12345678";  // Mock Contract Address
+
+        // Initialize Web3 with the window.ethereum provider
+        const Web3 = require("web3");
+        const web3 = new Web3(window.ethereum);
+        
+        // Example ABI of your contract (simplified)
+        const contractABI = [
+            {
+                "inputs": [],
+                "name": "getAssetDetails",
+                "outputs": [
+                    { "internalType": "string", "name": "", "type": "string" },
+                    { "internalType": "string", "name": "", "type": "string" },
+                    { "internalType": "address", "name": "", "type": "address" },
+                    { "internalType": "uint256", "name": "", "type": "uint256" },
+                    { "internalType": "address[]", "name": "", "type": "address[]" }
+                ],
+                "stateMutability": "view",
+                "type": "function"
+            },
+            {
+                "inputs": [{ "internalType": "string", "name": "_assetHash", "type": "string" }],
+                "name": "verifyAsset",
+                "outputs": [
+                    { "internalType": "bool", "name": "", "type": "bool" }
+                ],
+                "stateMutability": "view",
+                "type": "function"
+            }
+        ];
+
+        // Instantiate the contract with ABI and address
+        const contract = new web3.eth.Contract(contractABI, contractAddress);
+
+        // Function to get asset details from the smart contract
+        async function getAssetDetails() {
+            const assetHash = document.getElementById("assetHash").value;  // Get inputted asset hash
+
+            try {
+                // Call the contract's `getAssetDetails` function
+                const details = await contract.methods.getAssetDetails(assetHash).call();
+                console.log(details);
+
+                // Display asset details on the webpage
+                document.getElementById("assetName").textContent = details[0];
+                document.getElementById("assetDescription").textContent = details[1];
+                document.getElementById("assetOwner").textContent = details[2];
+                document.getElementById("assetTimestamp").textContent = details[3];
+            } catch (error) {
+                console.error("Error fetching asset details:", error);  // Log any errors
+            }
+        }
+
+        // Function to verify if an asset exists in the contract
+        async function verifyAsset() {
+            const assetHash = document.getElementById("assetHash").value;  // Get inputted asset hash
+
+            try {
+                // Call the contract's `verifyAsset` function
+                const isVerified = await contract.methods.verifyAsset(assetHash).call();
+                // Display the verification status on the webpage
+                document.getElementById("verificationStatus").textContent = isVerified ? "Asset is verified" : "Asset not found";
+            } catch (error) {
+                console.error("Error verifying asset:", error);  // Log any errors
+            }
+        }
+    </script>
+</body>
+</html>
